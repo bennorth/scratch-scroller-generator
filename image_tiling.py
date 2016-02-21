@@ -9,3 +9,6 @@ def round_up_to_multiple(n, d):
         return n + d - r
     else:
         return n
+
+def tile_stride(viewport_half_size, overlap):
+    return 2 * viewport_half_size - overlap
