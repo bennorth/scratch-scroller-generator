@@ -1,3 +1,5 @@
+import Image
+
 def round_up_to_multiple(n, d):
     """
     Return smallest multiple of d not less than n.
@@ -31,3 +33,18 @@ class Constants:
     tile_overlap = 20
     u_stride = tile_stride(viewport_half_wd, tile_overlap)
     v_stride = tile_stride(viewport_half_ht, tile_overlap)
+
+def padded_image(world_image):
+    """
+    Return an image containing the given ``world_image`` in its centre,
+    with dimensions such that it is an integer number of tiles in each
+    dimension.
+    """
+    raw_wd, raw_ht = world_image.size
+    padded_wd = padded_size(raw_wd, Constants.viewport_half_wd, Constants.tile_overlap)
+    padded_ht = padded_size(raw_ht, Constants.viewport_half_ht, Constants.tile_overlap)
+    padded_img = Image.new(world_image.mode, (padded_wd, padded_ht), "black")
+    x0 = (padded_wd - raw_wd) // 2
+    y0 = (padded_ht - raw_ht) // 2
+    padded_img.paste(world_image, (x0, y0))
+    return padded_img
