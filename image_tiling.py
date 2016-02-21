@@ -1,4 +1,5 @@
 import Image
+from collections import namedtuple
 
 def round_up_to_multiple(n, d):
     """
@@ -48,3 +49,11 @@ def padded_image(world_image):
     y0 = (padded_ht - raw_ht) // 2
     padded_img.paste(world_image, (x0, y0))
     return padded_img
+
+class TileDescriptor(namedtuple('TileDescriptor', 'u0 v0 img')):
+    """
+    u0 and v0 are the world coords (with 'y is up' convention)
+    corresponding to the centre of 'img'.  'img' will be of even width
+    and height, so the coords refer to the central vertex, not the
+    centre of any pixel.
+    """
