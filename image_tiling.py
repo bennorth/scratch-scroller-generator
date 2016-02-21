@@ -57,3 +57,19 @@ class TileDescriptor(namedtuple('TileDescriptor', 'u0 v0 img')):
     and height, so the coords refer to the central vertex, not the
     centre of any pixel.
     """
+    @classmethod
+    def from_world_image(cls, u0, v0, world_image):
+        """
+        u0 and v0 are interpreted in 'y is up' coords, with bottom-left
+        being the origin.  I.e., (0, 0) refers to the bottom-left vertex
+        of the bottom-left pixel.  The returned TileDescriptor has an
+        'img' such that its central vertex corresponds to the vertex
+        with world coords (u0, v0) in the world image.
+        """
+        world_ht = world_image.size[1]
+        tl_x = u0 - Constants.viewport_half_wd
+        tl_y = world_ht - (Constants.viewport_half_ht + v0)
+        tile_wd = 2 * Constants.viewport_half_wd
+        tile_ht = 2 * Constants.viewport_half_ht
+        tile_img = world_image.crop((tl_x, tl_y, tl_x + tile_wd, tl_y + tile_ht))
+        return cls(u0, v0, tile_img)
