@@ -73,3 +73,17 @@ class TileDescriptor(namedtuple('TileDescriptor', 'u0 v0 img')):
         tile_ht = 2 * Constants.viewport_half_ht
         tile_img = world_image.crop((tl_x, tl_y, tl_x + tile_wd, tl_y + tile_ht))
         return cls(u0, v0, tile_img)
+
+    @classmethod
+    def list_from_image(cls, world_image):
+        """
+        Return list of ``TileDescriptor`` instances covering (a padded
+        version of) the given ``world_image``.
+        """
+        world_image = padded_image(world_image)
+        world_wd, world_ht = world_image.size
+        vp_hwd = Constants.viewport_half_wd
+        vp_hht = Constants.viewport_half_ht
+        return [cls.from_world_image(u0, v0, world_image)
+                for u0 in range(vp_hwd, world_wd - vp_hwd + 1, Constants.u_stride)
+                for v0 in range(vp_hht, world_ht - vp_hht + 1, Constants.v_stride)]
