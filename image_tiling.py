@@ -24,3 +24,10 @@ def padded_size(raw_size, viewport_half_size, overlap):
     clamped_below_size = max(raw_size, viewport_size)
     return (viewport_size
             + round_up_to_multiple(clamped_below_size - viewport_size, stride))
+
+class Constants:
+    viewport_half_wd = 240
+    viewport_half_ht = 180
+    tile_overlap = 20
+    u_stride = tile_stride(viewport_half_wd, tile_overlap)
+    v_stride = tile_stride(viewport_half_ht, tile_overlap)
