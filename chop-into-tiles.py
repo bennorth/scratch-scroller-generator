@@ -1,3 +1,53 @@
+from functools import partial
+import kurt
+
+
+B = kurt.Block
+V = partial(B, 'readVariable')
+sV = partial(B, 'setVar:to:')
+
+
+def display_script(u0, v0):
+    """
+    Return kurt.Script object for the repositioning script for a tile
+    whose centre is to appear at (``u0``, ``v0``) in world coordinates.
+    Assumes the existence of the following variables:
+
+        global variables ``centre-x``, ``centre-y`` --- world
+            coordinates of the current centre of the viewport
+
+        sprite-local variables ``s``, ``t`` --- intermediate calculation
+            for this sprite: (s, t) = (u0, v0) - (centre-x, centre-y),
+            i.e., where on the screen this tile should be positioned
+            (before allowing for hiding when off-screen)
+    """
+    hat = B('whenIReceive', 'reposition-map-tiles')
+
+    set_s = sV('s', B('-', u0, V('centre-x')))
+    set_t = sV('t', B('-', v0, V('centre-y')))
+
+    var_s = V('s')
+    var_t = V('t')
+    move = B('gotoX:y:', var_s, var_t)
+    if_clause = [move, B('show')]
+    else_clause = [B('hide')]
+    s_test = B('&',
+               B('not', B('<', var_s, -T.Constants.u_stride)),
+               B('<', var_s, T.Constants.u_stride))
+    t_test = B('&',
+               B('not', B('<', var_t, -T.Constants.v_stride)),
+               B('<', var_t, T.Constants.v_stride))
+    both_test = B('&', s_test, t_test)
+    maybe_move_show = B('doIfElse', both_test,
+                        if_clause, else_clause)
+
+    return kurt.Script([hat,
+                        B('hide'),
+                        set_s,
+                        set_t,
+                        maybe_move_show])
+
+
 """
 Notes from observations:
 
