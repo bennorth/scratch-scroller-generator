@@ -130,6 +130,9 @@ if __name__ == '__main__':
 
     sprites = [sprite_from_tile(project, tile) for tile in tiles]
 
+    sprites.append(player_sprite(project, 'bike', 'bike.svg',
+                                 costume_kwargs={'rotation_center': (68, 17)}))
+
     project.sprites = sprites
 
     project.variables = {'centre-x': kurt.Variable(0),
