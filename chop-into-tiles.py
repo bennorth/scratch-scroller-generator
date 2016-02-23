@@ -1,5 +1,7 @@
 from functools import partial
+import Image, sys
 import kurt
+import image_tiling as T
 
 
 B = kurt.Block
@@ -60,6 +62,25 @@ def sprite_from_tile(project, tile):
     sprite.scripts = [display_script(tile.u0, tile.v0)]
     sprite.variables = {'s': kurt.Variable(0), 't': kurt.Variable(0)}
     return sprite
+
+
+if __name__ == '__main__':
+    source_image_fname = sys.argv[1]
+    source_image = Image.open(source_image_fname)
+    padded_image = T.padded_image(source_image)
+
+    project = kurt.Project()
+
+    tiles = T.TileDescriptor.list_from_image(padded_image)
+
+    sprites = [sprite_from_tile(project, tile) for tile in tiles]
+
+    project.sprites = sprites
+
+    project.variables = {'centre-x': kurt.Variable(0),
+                         'centre-y': kurt.Variable(0)}
+
+    project.save(sys.argv[2])
 
 
 """
