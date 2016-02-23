@@ -48,6 +48,20 @@ def display_script(u0, v0):
                         maybe_move_show])
 
 
+def sprite_from_tile(project, tile):
+    """
+    Create and return a new Sprite belonging to ``project`` for the
+    given ``tile``.  It is given a single costume equal to the tile's
+    image, and a single script which positions the tile on the screen
+    correctly for the tile's (u0, v0) coordinates.
+    """
+    sprite = kurt.Sprite(project, 'tile-%02d-%02d' % (tile.u0, tile.v0))
+    sprite.costumes = [kurt.Costume('img', kurt.Image(tile.img))]
+    sprite.scripts = [display_script(tile.u0, tile.v0)]
+    sprite.variables = {'s': kurt.Variable(0), 't': kurt.Variable(0)}
+    return sprite
+
+
 """
 Notes from observations:
 
