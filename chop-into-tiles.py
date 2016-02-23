@@ -64,6 +64,61 @@ def sprite_from_tile(project, tile):
     return sprite
 
 
+def player_sprite(project, name, image_filename,
+                  max_speed=6,
+                  costume_kwargs={}):
+    """
+    Create and return a new Sprite belonging to ``project`` for the
+    player.  The sprite's name is given by ``name`` (which is also the
+    name given to the sprite's sole costume).  The costume's image is
+    taken from the file called ``image_filename``.  Additional keyword
+    args for the ``Costume`` constructor can be passed in the dict
+    ``costume_kwargs`` (for example, ``'rotation_center'``) The maximum
+    speed permitted for the player can optionally be set by passing
+    ``max_speed``.
+    """
+    sprite = kurt.Sprite(project, name)
+
+    sprite.costumes = [kurt.Costume(name,
+                                    kurt.Image.load(image_filename),
+                                    **costume_kwargs)]
+
+    sprite.variables = {'player-dirn': kurt.Variable(0),
+                        'player-speed': kurt.Variable(0)}
+
+    movement_script = kurt.Script([
+        B('whenGreenFlag'),
+        sV('centre-x', 0),
+        sV('centre-y', 0),
+        B('doForever',
+          [B('doIf', B('keyPressed:', 'left arrow'),
+             [B('changeVar:by:', 'player-dirn', -5)]),
+           B('doIf', B('keyPressed:', 'right arrow'),
+             [B('changeVar:by:', 'player-dirn', 5)]),
+           B('heading:', V('player-dirn')),
+           B('changeVar:by:', 'centre-x',
+             B('*', V('player-speed'),
+               B('computeFunction:of:', 'sin', V('player-dirn')))),
+           B('changeVar:by:', 'centre-y',
+             B('*', V('player-speed'),
+               B('computeFunction:of:', 'cos', V('player-dirn')))),
+           B('doBroadcastAndWait', 'reposition-map-tiles')])])
+
+    speed_up_script = kurt.Script([
+        B('whenKeyPressed', 'up arrow'),
+        B('changeVar:by:', 'player-speed', 1),
+        B('doIf', B('>', V('player-speed'), max_speed), [sV('player-speed', max_speed)])])
+
+    slow_down_script = kurt.Script([
+        B('whenKeyPressed', 'down arrow'),
+        B('changeVar:by:', 'player-speed', -1),
+        B('doIf', B('<', V('player-speed'), 0), [sV('player-speed', 0)])])
+
+    sprite.scripts = [movement_script, speed_up_script, slow_down_script]
+
+    return sprite
+
+
 if __name__ == '__main__':
     source_image_fname = sys.argv[1]
     source_image = Image.open(source_image_fname)
